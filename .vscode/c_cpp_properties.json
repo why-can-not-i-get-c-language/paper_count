@@ -1,0 +1,29 @@
+{
+  "configurations": [
+    {
+      "name": "STM32F103C8-SPL",
+      "includePath": [
+        "${workspaceFolder}/User",
+        "${workspaceFolder}/System",
+        "${workspaceFolder}/Hardware",
+        "${workspaceFolder}/Application",
+        "${workspaceFolder}/Library/CMSIS/CM3/CoreSupport",
+        "${workspaceFolder}/Library/CMSIS/CM3/DeviceSupport/ST/STM32F10x",
+        "${workspaceFolder}/Library/STM32F10x_StdPeriph_Driver/inc"
+      ],
+      "compilerPath": "C:/Users/zzh/Desktop/code/mingw64/bin/gcc.exe",
+      "cStandard": "${default}",
+      "cppStandard": "${default}",
+      "intelliSenseMode": "windows-gcc-x64",
+      "defines": [
+        "STM32F10X_MD",
+        "USE_STDPERIPH_DRIVER"
+      ],
+      "compilerArgs": [
+        "-DSTM32F10X_MD",
+        "-DUSE_STDPERIPH_DRIVER"
+      ]
+    }
+  ],
+  "version": 4
+}
