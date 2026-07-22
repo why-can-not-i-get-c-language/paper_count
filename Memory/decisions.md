@@ -31,3 +31,10 @@
 - 决定：首次 Git 提交包含 `Library/` 中当前使用的 STM32 SPL 与 CMSIS 文件。
 - 原因：Keil 工程直接依赖这些源码；提交后，新环境克隆仓库即可获得一致的可编译依赖版本。
 - 影响：不忽略 `Library/`；仅忽略可重新生成的构建产物、通用依赖目录和本地缓存。
+
+## D006：Arm Compiler 6 禁用半主机输出
+
+- 状态：已确认。
+- 决定：使用 `__asm(".global __use_no_semihosting")` 禁用 Arm Compiler 6 的半主机输出，并通过 `fputc` 将 `printf` 重定向到 USART1。
+- 原因：未禁用半主机时，`printf` 会阻塞主程序，导致 LED 不再闪烁。
+- 影响：后续调试输出可直接使用 `printf`，不依赖 ST-LINK 的半主机控制台。

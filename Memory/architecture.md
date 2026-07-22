@@ -28,7 +28,7 @@
 | --- | --- | --- | --- |
 | 延时 | `System/delay.c/.h` | SysTick 毫秒计时与阻塞延时 | 已验证 |
 | 板载 LED | `Hardware/bsp_led.c/.h` | PC13 LED 初始化和控制 | 已验证 |
-| 串口 | `Hardware/bsp_usart.c/.h` | 调试信息输出 | 未实现 |
+| 串口 | `Hardware/bsp_usart.c/.h` | USART1 调试信息输出 | 已验证 |
 | 按键 | `Hardware/bsp_key.c/.h` | 按键读取与消抖 | 未实现 |
 | 软件 I2C | `Hardware/bsp_soft_i2c.c/.h` | OLED 与 EEPROM 的 I2C 时序 | 未实现 |
 | OLED | `Hardware/bsp_oled.c/.h` | 显示文字、数值和状态 | 未实现 |
