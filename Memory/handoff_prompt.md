@@ -3,57 +3,55 @@
 将以下内容完整复制到新的 Codex 对话中使用。
 
 ```text
-你正在继续一个 STM32 纸张计数项目。项目目录为：
+你正在继续 STM32 纸张计数项目，目录为：
 E:\learn ee\PROJECT\paper_count
 
-请先阅读项目根目录的 AGENTS.md，以及 Memory/architecture.md、Memory/decisions.md、Memory/progress.md。
+第一步必须阅读并遵守：
+1. 根目录 AGENTS.md。
+2. Memory/architecture.md。
+3. Memory/decisions.md。
+4. Memory/progress.md。
+5. Memory/roadmap.md。
+6. Memory/hardware_debug_standard.md。
+7. Memory/ui_oled_integration_plan.md。
 
-项目目标：
-使用两块铜箔极板和纸张形成可变电容；NE555 将电容变化转换为方波频率；STM32F103C8T6 测频并基于实测标定表换算纸张数量，最终通过 OLED 和串口显示。
+项目目标：两块 50mm x 50mm 铜板与纸张形成可变电容；NE555 将电容变化转为频率；STM32F103C8T6 测频，通过实测标定表换算 0~80 张普通 A4 纸的粗略数量，并在 OLED、串口显示；AT24C08 保存标定数据。
 
-固定技术约束：
-- MCU：STM32F103C8T6。
-- 工具链：Keil uVision，Arm Compiler 6.24（ARMCLANG）。
-- 库：STM32F10x Standard Peripheral Library v3.6.0，禁止改用 HAL。
-- 代码注释必须使用中文。
-- PC13 是板载 LED，低电平点亮。
-- PA13、PA14 保留给 ST-LINK。
-- NE555 的 5 V 输出进入 STM32 前必须降至 3.3 V。
+固定约束：
+- MCU：STM32F103C8T6；库：STM32F10x Standard Peripheral Library v3.6.0；禁止 HAL。
+- 工具链：Keil uVision + Arm Compiler 6.24。
+- C 代码注释使用中文；main.c 仅负责初始化和高层调度。
+- PC13 板载 LED 为低电平点亮；PA13/PA14 保留 ST-LINK。
+- STM32 GPIO 不得接收 5V。最终 NE555 使用 5V 时，OUT 必须先完成 5V 到 3.3V 电平转换再进入 PA0。
+- 每次硬件接线、万用表检查和测试说明必须遵循 Memory/hardware_debug_standard.md：明确器件、板上丝印、线材、断电检查、上电电压和软件预期。
 
-已通过真实硬件验证：
-1. PC13 LED 每约 0.5 秒闪烁。
-2. SysTick 延时正常。
-3. USART1 调试输出正常：PA9 为 TX，115200 bps；启动信息和每秒心跳可在串口助手看到。
-4. ARMCLANG 下 printf 已处理半主机问题：bsp_usart.c 使用
-   __asm(".global __use_no_semihosting");
-   并通过 fputc 重定向到 USART1。不要删除该处理。
+已完成真实硬件验证：
+1. SysTick 延时、PC13 LED、USART1（PA9 TX，115200bps）正常；ARMCLANG printf 已禁用半主机并重定向 USART1，不要删除 bsp_usart.c 中的处理。
+2. K1-K4：PB12/PB13/PB14/PB15 内部上拉，按下接 GND；未按约3.3V、按下约0V，事件与 LED/串口均正常。
+3. OLED：0.96英寸 SSD1306、128x64，3.3V 供电；PB6=SCL、PB7=SDA，7位地址0x3C；显示、ACK、当前字库均正常。
+4. UI 联合验证：监测页、标定页、保存确认页及顺序/乱序按键规则均正确；后台频率更新不会覆盖非监测页文字。
+5. 测频自测：TIM3_CH3/PB0 输出约1kHz方波回接 TIM2_CH1/PA0 后，串口稳定显示 Frequency: 1000 Hz。PB0到PA0的自测跳线已经必须拆除；Freq_SelfTestOutputInit 仅供以后自测，不在 main 默认调用。
 
-当前按键状态：
-- K1-K4 使用 PB12、PB13、PB14、PB15 的内部上拉输入，按下接 GND。
-- `bsp_key.c` 已加入 Keil，且 K1-K4 已完成真实硬件验证。
-- 已验证：Keil 编译通过；PB12-PB15 未按下约 3.3 V、按下约 0 V；串口按键事件与板载 LED 均正常。
-- 后续硬件接线、万用表检查和软件验证必须遵循 `Memory/hardware_debug_standard.md`。
+当前代码状态：
+- 已验证：delay、LED、USART、按键、软件I2C、OLED、UI、TIM2/PA0 测频自测。
+- 已算法和 Keil 编译验证：app_calibration（最多16标定点、升序校验、整数分段线性插值），app_paper_counter（稳定样本、容差、状态映射）。
+- 未实现：AT24C08、蜂鸣器、最终 NE555 传感器电路和真实纸张标定/整机联调。
+- OLED 当前字库只覆盖当前页面所需的大写字母、数字、空格和冒号；新增显示文本前应补充字库并测试。
+- UI 按键规则见 ui_oled_integration_plan.md；无效页面操作不改变页面，并通过串口输出 UI action ignored。
 
-当前软件状态：
-- 已验证：System/delay.c/.h、Hardware/bsp_led.c/.h、Hardware/bsp_usart.c/.h。
-- 已验证：Hardware/bsp_key.c/.h。
-- 未实现：软件 I2C、OLED、AT24C08、NE555 测频、标定算法、纸张计数、UI。
-- 当前优先执行路线图阶段 0 的硬件信息确认，以及阶段 1 的软件工作，例如 Application/app_calibration.c/.h 的频率标定表、最近值查找和线性插值算法。
+当前暂停和锁定：
+- 用户要求暂停任何需要示波器或逻辑分析仪的任务。
+- 锁定范围：NE555 波形幅度/占空比/边沿/毛刺，5V到3.3V转换过冲，I2C波形质量，铜板传感器噪声波形。
+- 未经用户明确解锁，不得主动开展或标记这些事项为已验证；可继续软件、Keil、MCU回接自测、万用表静态检查。
 
-Git 状态（交接时）：
-- 分支：main，比 origin/main 领先 1 个提交。
-- 最近本地提交：8198e2b feat: add verified USART1 debug output。
-- 按键阶段已完成；继续工作前先检查当前 Git 状态与最新项目记录。
-- 另有未提交的 .vscode/c_cpp_properties.json 改动，不属于按键任务；不要随意暂存、覆盖或提交它。
-- 默认不推送远程仓库，除非用户明确要求。
+当前下一步候选：
+1. 收集并确认 AT24C08 模块/芯片的封装、A0/A1/A2、WP、供电和引脚，再实现 EEPROM 驱动与标定表保存。
+2. 在元件到位后设计 NE555 固定电容振荡器和 5V到3.3V电平转换，先做万用表静态检查，再接 PA0；波形质量检查保持锁定。
 
-工作规则：
-1. 每次先检查当前文件和 git diff，保留用户已有改动。
-2. 只修改当前任务相关文件。
-3. 每一步先通过 Keil 编译和用户硬件测试，再更新 Memory 状态。
-4. 只有完成预期硬件验证的模块才能标记“已验证”。
-5. 在任务被用户接受后，检查 git diff，仅暂存当前任务相关文件，更新 Memory，创建清晰的本地提交；默认不推送。
-6. 向用户提供 Keil 操作、接线和测试步骤时使用保姆级中文说明。
+Git 规则：
+- 当前分支 main；最近提交 d969361 feat: integrate ui with oled controls。
+- .vscode/c_cpp_properties.json 是用户的未提交改动，绝不暂存、覆盖或提交；继续前先检查 git status 和 git diff。
+- 每个小任务经用户 Keil/硬件验证后，更新 Memory，审查 diff，只暂存直接相关文件，创建本地提交；默认不推送。
 
-请先简要汇报你读取到的当前状态，再等待或执行用户指定的下一项工作。
+开始工作前，先用中文简要列出你已读取并将据此遵守的信息，供用户审查；至少包括：项目目标、工具链/代码约束、已验证模块及引脚、当前未完成项、波形任务锁定规则、Git 未提交文件和你理解的下一步。完成该清单后再等待或执行用户的下一项指令。
 ```
