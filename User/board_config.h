@@ -16,4 +16,6 @@
 #define SOFT_I2C_SCL_PIN   GPIO_Pin_6
 #define SOFT_I2C_SDA_PIN   GPIO_Pin_7
 
+#define OLED_I2C_ADDRESS   0x3CU
+
 #endif

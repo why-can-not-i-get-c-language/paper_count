@@ -31,7 +31,7 @@
 | 串口 | `Hardware/bsp_usart.c/.h` | USART1 调试信息输出 | 已验证 |
 | 按键 | `Hardware/bsp_key.c/.h` | PB12-PB15 按键读取与消抖 | 已验证 |
 | 软件 I2C | `Hardware/bsp_soft_i2c.c/.h` | PB6/PB7 OLED 与 EEPROM 的 I2C 时序 | Keil 编译已验证，待总线实测 |
-| OLED | `Hardware/bsp_oled.c/.h` | SSD1306 OLED 初始化与状态显示 | 未实现 |
+| OLED | `Hardware/bsp_oled.c/.h` | SSD1306 OLED 初始化与状态显示 | Keil 编译已验证，待点亮实测 |
 | EEPROM | `Hardware/bsp_at24c08.c/.h` | 保存和读取标定数据 | 未实现 |
 | 测频 | `Hardware/bsp_freq.c/.h` | 使用定时器读取 NE555 频率 | 未实现 |
 | 标定 | `Application/app_calibration.c/.h` | 管理频率-张数标定数据与分段线性插值 | 算法与 Keil 编译已验证，真实标定待联调 |
