@@ -21,6 +21,16 @@ typedef enum
     CALIBRATION_STATUS_OUT_OF_RANGE_HIGH
 } CalibrationStatus;
 
+typedef enum
+{
+    CALIBRATION_STORAGE_STATUS_OK = 0,
+    CALIBRATION_STORAGE_STATUS_EMPTY,
+    CALIBRATION_STORAGE_STATUS_EEPROM_ERROR,
+    CALIBRATION_STORAGE_STATUS_FORMAT_ERROR,
+    CALIBRATION_STORAGE_STATUS_CHECKSUM_ERROR,
+    CALIBRATION_STORAGE_STATUS_TABLE_ERROR
+} CalibrationStorageStatus;
+
 /* 清空当前标定表。 */
 void Calibration_Clear(void);
 
@@ -32,5 +42,11 @@ const CalibrationPoint *Calibration_GetTable(uint8_t *count);
 
 /* 根据频率查询纸张数量，区间内使用整数分段线性插值。 */
 CalibrationStatus Calibration_ConvertFrequency(uint32_t frequency_hz, uint16_t *paper_count);
+
+/* 将当前标定表保存到 AT24C08。 */
+CalibrationStorageStatus Calibration_Save(void);
+
+/* 从 AT24C08 加载并校验标定表。 */
+CalibrationStorageStatus Calibration_Load(void);
 
 #endif

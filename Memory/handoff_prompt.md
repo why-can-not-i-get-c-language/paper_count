@@ -33,9 +33,9 @@ E:\learn ee\PROJECT\paper_count
 5. 测频自测：TIM3_CH3/PB0 输出约1kHz方波回接 TIM2_CH1/PA0 后，串口稳定显示 Frequency: 1000 Hz。PB0到PA0的自测跳线已经必须拆除；Freq_SelfTestOutputInit 仅供以后自测，不在 main 默认调用。
 
 当前代码状态：
-- 已验证：delay、LED、USART、按键、软件I2C、OLED、UI、TIM2/PA0 测频自测。
+- 已验证：delay、LED、USART、按键、软件I2C、OLED、UI、TIM2/PA0 测频自测、AT24C08 读写与测试标定表掉电恢复。
 - 已算法和 Keil 编译验证：app_calibration（最多16标定点、升序校验、整数分段线性插值），app_paper_counter（稳定样本、容差、状态映射）。
-- 未实现：AT24C08、蜂鸣器、最终 NE555 传感器电路和真实纸张标定/整机联调。
+- 未实现：蜂鸣器、最终 NE555 传感器电路和真实纸张标定/整机联调。
 - OLED 当前字库只覆盖当前页面所需的大写字母、数字、空格和冒号；新增显示文本前应补充字库并测试。
 - UI 按键规则见 ui_oled_integration_plan.md；无效页面操作不改变页面，并通过串口输出 UI action ignored。
 
@@ -45,11 +45,11 @@ E:\learn ee\PROJECT\paper_count
 - 未经用户明确解锁，不得主动开展或标记这些事项为已验证；可继续软件、Keil、MCU回接自测、万用表静态检查。
 
 当前下一步候选：
-1. 收集并确认 AT24C08 模块/芯片的封装、A0/A1/A2、WP、供电和引脚，再实现 EEPROM 驱动与标定表保存。
+1. 收集并确认蜂鸣器的封装、供电、有效电平和引脚，再实现蜂鸣器驱动。
 2. 在元件到位后设计 NE555 固定电容振荡器和 5V到3.3V电平转换，先做万用表静态检查，再接 PA0；波形质量检查保持锁定。
 
 Git 规则：
-- 当前分支 main；最近提交 d969361 feat: integrate ui with oled controls。
+- 当前分支 main；最近提交 126cf9b docs: refresh project handoff memory。
 - .vscode/c_cpp_properties.json 是用户的未提交改动，绝不暂存、覆盖或提交；继续前先检查 git status 和 git diff。
 - 每个小任务经用户 Keil/硬件验证后，更新 Memory，审查 diff，只暂存直接相关文件，创建本地提交；默认不推送。
 

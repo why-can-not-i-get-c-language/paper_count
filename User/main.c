@@ -5,6 +5,8 @@
 #include "bsp_usart.h"
 #include "bsp_oled.h"
 #include "bsp_freq.h"
+#include "bsp_at24c08.h"
+#include "app_calibration.h"
 #include "app_ui.h"
 #include <stdio.h>
 
@@ -37,6 +39,7 @@ int main(void)
     uint8_t led_tick = 0U;
     uint8_t usart_tick = 0U;
     uint8_t oled_ok;
+    CalibrationStorageStatus calibration_storage_status;
     uint32_t frequency_hz;
     KeyCode key;
 
@@ -44,8 +47,11 @@ int main(void)
     LED_Init();
     Key_Init();
     USART1_Init(115200U);
+    /* 等待 USB 转串口模块与上位机在复位后稳定，避免首批调试字符丢失。 */
+    Delay_ms(1000U);
     Freq_Init();
     Ui_Init();
+    AT24C08_Init();
 
     oled_ok = OLED_Init();
     if (oled_ok != 0U)
@@ -58,6 +64,10 @@ int main(void)
     {
         printf("OLED init failed\r\n");
     }
+
+    /* 开机仅加载已有标定表，不自动写入 EEPROM。 */
+    calibration_storage_status = Calibration_Load();
+    printf("Calibration load status: %d\r\n", (int)calibration_storage_status);
 
     printf("\r\nPaperCounter boot OK\r\n");
 

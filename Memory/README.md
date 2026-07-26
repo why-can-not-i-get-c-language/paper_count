@@ -10,6 +10,7 @@
 - `roadmap.md`：按依赖关系排列的项目实施顺序、阶段目标和完成条件。
 - `hardware_debug_standard.md`：硬件接线、万用表检查和软件验证的统一说明标准。
 - `ui_oled_integration_plan.md`：按键、UI 状态、OLED 与串口联合验证路径。
+- `wiring_map.md`：用户确认已经实际接线并有效的接口总表。
 - `handoff_prompt.md`：用于新对话或新代理的项目交接 Prompt。
 
 ## 更新规则

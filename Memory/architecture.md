@@ -32,9 +32,9 @@
 | 按键 | `Hardware/bsp_key.c/.h` | PB12-PB15 按键读取与消抖 | 已验证 |
 | 软件 I2C | `Hardware/bsp_soft_i2c.c/.h` | PB6/PB7 OLED 与 EEPROM 的 I2C 时序 | 已通过 OLED 硬件验证 |
 | OLED | `Hardware/bsp_oled.c/.h` | SSD1306 OLED 初始化与状态显示 | 已验证 |
-| EEPROM | `Hardware/bsp_at24c08.c/.h` | 保存和读取标定数据 | 未实现 |
+| EEPROM | `Hardware/bsp_at24c08.c/.h` | AT24C08 页写、随机读和写周期等待 | Keil 编译、实机读取、跨页/跨地址块读写和标定表掉电恢复已验证 |
 | 测频 | `Hardware/bsp_freq.c/.h` | TIM2/PA0 输入捕获读取方波频率 | 已通过 STM32 1 kHz 回接自测，待 NE555 联调 |
-| 标定 | `Application/app_calibration.c/.h` | 管理频率-张数标定数据与分段线性插值 | 算法与 Keil 编译已验证，真实标定待联调 |
+| 标定 | `Application/app_calibration.c/.h` | 管理频率-张数标定数据、分段线性插值和 EEPROM 持久化 | 算法、Keil 编译和测试标定表持久化已验证；真实标定待联调 |
 | 计数 | `Application/app_paper_counter.c/.h` | 频率稳定判断与标定换算 | 算法与 Keil 编译已验证，真实频率待联调 |
 | UI | `Application/app_ui.c/.h` | 页面状态、按键事件与显示数据 | 已通过按键与 OLED 联合硬件验证 |
 
@@ -44,15 +44,15 @@
 - PC13 是核心板板载 LED，通常为低电平点亮。
 - PA13、PA14 保留给 ST-LINK 调试。
 - NE555 输出进入 STM32 前必须从 5 V 降至 3.3 V。
-- K1-K4 分别连接 PB12、PB13、PB14、PB15，按下时接地。
 - OLED 为 0.96 英寸、128x64、白色单色 I2C 模块，驱动芯片为 SSD1306。
-- OLED 排针从正面、排针在上方时由左至右为 GND、VCC、SCL、SDA。
 - OLED 使用 3.3 V 供电，SCL/SDA 逻辑电平不得超过 3.3 V。
 - OLED 默认 7 位 I2C 地址为 0x3C；模块可配置为 0x3D。
 - OLED 模块板载 SCL/SDA 至 VCC 的 4.7 kΩ 上拉电阻。
 
+当前已经确认的实际接线与对应核心板接口统一记录在 `Memory/wiring_map.md`；本文件不再重复维护具体连线。
+
 ## 待确认硬件信息
 
-- AT24C08 的封装、A0、A1、A2、WP 地址/写保护引脚连接方式和供电。
+- AT24C08 已完成实际接线、Keil 编译、实机读取、跨页/跨地址块读写和测试标定表掉电恢复验证。
 - 蜂鸣器的实际引脚与有效电平。
 - 最终 NE555 传感器电路的定时网络、频率范围、电平转换与 PA0 输入连接。
