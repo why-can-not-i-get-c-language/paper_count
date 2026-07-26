@@ -22,4 +22,8 @@
 #define FREQ_GPIO_PORT GPIOA
 #define FREQ_INPUT_PIN GPIO_Pin_0
 
+/* TIM3_CH3 使用 PB0 输出 1 kHz 自测方波。 */
+#define FREQ_SELFTEST_GPIO_PORT GPIOB
+#define FREQ_SELFTEST_PIN       GPIO_Pin_0
+
 #endif

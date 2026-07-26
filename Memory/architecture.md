@@ -33,7 +33,7 @@
 | 软件 I2C | `Hardware/bsp_soft_i2c.c/.h` | PB6/PB7 OLED 与 EEPROM 的 I2C 时序 | 已通过 OLED 硬件验证 |
 | OLED | `Hardware/bsp_oled.c/.h` | SSD1306 OLED 初始化与状态显示 | 已验证 |
 | EEPROM | `Hardware/bsp_at24c08.c/.h` | 保存和读取标定数据 | 未实现 |
-| 测频 | `Hardware/bsp_freq.c/.h` | TIM2/PA0 输入捕获读取方波频率 | Keil 编译已验证，待回接自测 |
+| 测频 | `Hardware/bsp_freq.c/.h` | TIM2/PA0 输入捕获读取方波频率 | 已通过 STM32 1 kHz 回接自测，待 NE555 联调 |
 | 标定 | `Application/app_calibration.c/.h` | 管理频率-张数标定数据与分段线性插值 | 算法与 Keil 编译已验证，真实标定待联调 |
 | 计数 | `Application/app_paper_counter.c/.h` | 频率稳定判断与标定换算 | 算法与 Keil 编译已验证，真实频率待联调 |
 | UI | `Application/app_ui.c/.h` | 页面状态、按键事件与显示数据 | Keil 编译已验证，待 OLED 联调 |

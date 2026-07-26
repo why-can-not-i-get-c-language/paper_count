@@ -110,3 +110,33 @@ void Freq_TIM2IRQHandler(void)
         TIM_ClearITPendingBit(TIM2, TIM_IT_CC1);
     }
 }
+
+void Freq_SelfTestOutputInit(void)
+{
+    GPIO_InitTypeDef gpio_init;
+    TIM_TimeBaseInitTypeDef timer_init;
+    TIM_OCInitTypeDef output_init;
+
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
+
+    gpio_init.GPIO_Pin = FREQ_SELFTEST_PIN;
+    gpio_init.GPIO_Speed = GPIO_Speed_2MHz;
+    gpio_init.GPIO_Mode = GPIO_Mode_AF_PP;
+    GPIO_Init(FREQ_SELFTEST_GPIO_PORT, &gpio_init);
+
+    timer_init.TIM_Period = 999U;
+    timer_init.TIM_Prescaler = 71U;
+    timer_init.TIM_ClockDivision = TIM_CKD_DIV1;
+    timer_init.TIM_CounterMode = TIM_CounterMode_Up;
+    TIM_TimeBaseInit(TIM3, &timer_init);
+
+    output_init.TIM_OCMode = TIM_OCMode_PWM1;
+    output_init.TIM_OutputState = TIM_OutputState_Enable;
+    output_init.TIM_Pulse = 500U;
+    output_init.TIM_OCPolarity = TIM_OCPolarity_High;
+    TIM_OC3Init(TIM3, &output_init);
+    TIM_OC3PreloadConfig(TIM3, TIM_OCPreload_Enable);
+    TIM_ARRPreloadConfig(TIM3, ENABLE);
+    TIM_Cmd(TIM3, ENABLE);
+}

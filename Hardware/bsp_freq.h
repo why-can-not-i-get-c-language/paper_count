@@ -6,5 +6,6 @@
 void Freq_Init(void);
 uint8_t Freq_GetHz(uint32_t *frequency_hz);
 void Freq_TIM2IRQHandler(void);
+void Freq_SelfTestOutputInit(void);
 
 #endif
