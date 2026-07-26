@@ -35,7 +35,7 @@
 | EEPROM | `Hardware/bsp_at24c08.c/.h` | 保存和读取标定数据 | 未实现 |
 | 测频 | `Hardware/bsp_freq.c/.h` | 使用定时器读取 NE555 频率 | 未实现 |
 | 标定 | `Application/app_calibration.c/.h` | 管理频率-张数标定数据与分段线性插值 | 算法与 Keil 编译已验证，真实标定待联调 |
-| 计数 | `Application/app_paper_counter.c/.h` | 滤波、稳定判断、频率换算 | 未实现 |
+| 计数 | `Application/app_paper_counter.c/.h` | 频率稳定判断与标定换算 | 算法与 Keil 编译已验证，真实频率待联调 |
 | UI | `Application/app_ui.c/.h` | OLED 页面和按键交互流程 | 未实现 |
 
 ## 已确认硬件约束
