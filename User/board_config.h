@@ -11,4 +11,9 @@
 #define KEY4_PIN       GPIO_Pin_15
 #define KEY_ALL_PINS   (KEY1_PIN | KEY2_PIN | KEY3_PIN | KEY4_PIN)
 
+/* 软件 I2C 使用 PB6 作为时钟、PB7 作为数据线。 */
+#define SOFT_I2C_GPIO_PORT GPIOB
+#define SOFT_I2C_SCL_PIN   GPIO_Pin_6
+#define SOFT_I2C_SDA_PIN   GPIO_Pin_7
+
 #endif

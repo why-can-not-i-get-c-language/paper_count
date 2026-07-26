@@ -30,8 +30,8 @@
 | 板载 LED | `Hardware/bsp_led.c/.h` | PC13 LED 初始化和控制 | 已验证 |
 | 串口 | `Hardware/bsp_usart.c/.h` | USART1 调试信息输出 | 已验证 |
 | 按键 | `Hardware/bsp_key.c/.h` | PB12-PB15 按键读取与消抖 | 已验证 |
-| 软件 I2C | `Hardware/bsp_soft_i2c.c/.h` | OLED 与 EEPROM 的 I2C 时序 | 未实现 |
-| OLED | `Hardware/bsp_oled.c/.h` | 显示文字、数值和状态 | 未实现 |
+| 软件 I2C | `Hardware/bsp_soft_i2c.c/.h` | PB6/PB7 OLED 与 EEPROM 的 I2C 时序 | Keil 编译已验证，待总线实测 |
+| OLED | `Hardware/bsp_oled.c/.h` | SSD1306 OLED 初始化与状态显示 | 未实现 |
 | EEPROM | `Hardware/bsp_at24c08.c/.h` | 保存和读取标定数据 | 未实现 |
 | 测频 | `Hardware/bsp_freq.c/.h` | 使用定时器读取 NE555 频率 | 未实现 |
 | 标定 | `Application/app_calibration.c/.h` | 管理频率-张数标定数据与分段线性插值 | 算法与 Keil 编译已验证，真实标定待联调 |
@@ -45,6 +45,11 @@
 - PA13、PA14 保留给 ST-LINK 调试。
 - NE555 输出进入 STM32 前必须从 5 V 降至 3.3 V。
 - K1-K4 分别连接 PB12、PB13、PB14、PB15，按下时接地。
+- OLED 为 0.96 英寸、128x64、白色单色 I2C 模块，驱动芯片为 SSD1306。
+- OLED 排针从正面、排针在上方时由左至右为 GND、VCC、SCL、SDA。
+- OLED 使用 3.3 V 供电，SCL/SDA 逻辑电平不得超过 3.3 V。
+- OLED 默认 7 位 I2C 地址为 0x3C；模块可配置为 0x3D。
+- OLED 模块板载 SCL/SDA 至 VCC 的 4.7 kΩ 上拉电阻。
 
 ## 待确认硬件信息
 
