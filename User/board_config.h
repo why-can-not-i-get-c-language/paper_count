@@ -18,4 +18,8 @@
 
 #define OLED_I2C_ADDRESS   0x3CU
 
+/* TIM2_CH1 使用 PA0 输入 NE555 或自测方波。 */
+#define FREQ_GPIO_PORT GPIOA
+#define FREQ_INPUT_PIN GPIO_Pin_0
+
 #endif

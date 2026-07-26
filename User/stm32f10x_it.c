@@ -23,6 +23,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f10x_it.h"
 #include "delay.h"
+#include "bsp_freq.h"
 
 /** @addtogroup STM32F10x_StdPeriph_Template
   * @{
@@ -135,6 +136,11 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
   Delay_SysTickHandler();
+}
+
+void TIM2_IRQHandler(void)
+{
+  Freq_TIM2IRQHandler();
 }
 
 /******************************************************************************/
