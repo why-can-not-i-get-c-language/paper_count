@@ -20,6 +20,13 @@ typedef enum
     UI_KEY_4
 } UiKeyEvent;
 
+typedef enum
+{
+    UI_ACTION_NONE = 0,
+    UI_ACTION_RENDER,
+    UI_ACTION_SAVE_REQUEST
+} UiAction;
+
 typedef struct
 {
     UiPage page;
@@ -27,13 +34,17 @@ typedef struct
     uint16_t paper_count;
     PaperCounterStatus counter_status;
     uint8_t calibration_dirty;
+    uint8_t save_failed;
 } UiState;
 
 /* 初始化页面状态。 */
 void Ui_Init(void);
 
-/* 处理已转换的按键事件。 */
-uint8_t Ui_HandleKey(UiKeyEvent key_event);
+/* 处理已转换的按键事件，并返回界面或保存动作。 */
+UiAction Ui_HandleKey(UiKeyEvent key_event);
+
+/* 根据 EEPROM 保存结果完成或保留保存确认页。 */
+uint8_t Ui_CompleteSave(uint8_t success);
 
 /* 更新监测页显示所需的测量数据。 */
 void Ui_UpdateMeasurement(uint32_t frequency_hz, uint16_t paper_count, PaperCounterStatus counter_status);

@@ -36,7 +36,7 @@
 | 测频 | `Hardware/bsp_freq.c/.h` | TIM2/PA0 输入捕获读取方波频率 | 已通过 STM32 1 kHz 回接自测，待 NE555 联调 |
 | 标定 | `Application/app_calibration.c/.h` | 管理频率-张数标定数据、分段线性插值和 EEPROM 持久化 | 算法、Keil 编译和测试标定表持久化已验证；真实标定待联调 |
 | 计数 | `Application/app_paper_counter.c/.h` | 频率稳定判断与标定换算 | 算法与 Keil 编译已验证，真实频率待联调 |
-| UI | `Application/app_ui.c/.h` | 页面状态、按键事件与显示数据 | 已通过按键与 OLED 联合硬件验证 |
+| UI | `Application/app_ui.c/.h` | 页面状态、按键事件、显示数据和保存请求 | 原页面流程与空表保存失败提示已验证；成功保存等待真实标定表 |
 
 ## 已确认硬件约束
 

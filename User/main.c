@@ -40,6 +40,7 @@ int main(void)
     uint8_t usart_tick = 0U;
     uint8_t oled_ok;
     CalibrationStorageStatus calibration_storage_status;
+    UiAction ui_action;
     uint32_t frequency_hz;
     KeyCode key;
 
@@ -77,7 +78,15 @@ int main(void)
         if (key != KEY_NONE)
         {
             printf("KEY %d pressed\r\n", (int)key);
-            if (Ui_HandleKey(Main_ConvertKeyEvent(key)) != 0U)
+            ui_action = Ui_HandleKey(Main_ConvertKeyEvent(key));
+            if (ui_action == UI_ACTION_SAVE_REQUEST)
+            {
+                calibration_storage_status = Calibration_Save();
+                printf("Calibration save status: %d\r\n", (int)calibration_storage_status);
+                Ui_CompleteSave(calibration_storage_status == CALIBRATION_STORAGE_STATUS_OK);
+                Main_RenderUi();
+            }
+            else if (ui_action == UI_ACTION_RENDER)
             {
                 Main_RenderUi();
             }
