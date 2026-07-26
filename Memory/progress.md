@@ -39,13 +39,14 @@
 
 - 已实现：PB6 为 SCL、PB7 为 SDA 的开漏软件 I2C 时序。
 - 已验证：用户已将 `bsp_soft_i2c.c` 加入 Keil 的 Hardware 分组，F7 编译与链接结果为 0 Error(s), 0 Warning(s)。
-- 待验证：连接 OLED 后执行 SSD1306 地址 ACK 和显示初始化测试。
+- 已验证：OLED 接线、SSD1306 地址 ACK 和初始化测试通过。
 
 ## OLED 驱动验证记录
 
 - 已实现：SSD1306 初始化、0x3C 地址 ACK、清屏、基础字符/字符串/数字显示。
 - 已验证：用户已将 `bsp_oled.c` 加入 Keil 的 Hardware 分组，F7 编译与链接结果为 0 Error(s), 0 Warning(s)。
-- 待验证：下载 OLED 测试程序后，确认屏幕实际点亮并显示测试文本。
+- 已验证：用户下载程序后 OLED 成功点亮；`OLEDK 0123456789` 全部显示正确，随后恢复正式提示 `OLED OK`。
+- 结论：SSD1306 驱动、0x3C 地址、PB6/PB7 软件 I2C 和当前字库已通过真实硬件验证。
 
 ## 纸张计数模块验证记录
 

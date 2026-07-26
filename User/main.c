@@ -3,18 +3,31 @@
 #include "bsp_led.h"
 #include "bsp_key.h"
 #include "bsp_usart.h"
+#include "bsp_oled.h"
 #include <stdio.h>
 
 int main(void)
 {
     uint8_t led_tick = 0U;
     uint8_t usart_tick = 0U;
+    uint8_t oled_ok;
     KeyCode key;
 
     Delay_Init();
     LED_Init();
     Key_Init();
     USART1_Init(115200U);
+
+    oled_ok = OLED_Init();
+    if (oled_ok != 0U)
+    {
+        OLED_ShowString(0U, 0U, "OLED OK");
+        printf("OLED init OK\r\n");
+    }
+    else
+    {
+        printf("OLED init failed\r\n");
+    }
 
     printf("\r\nPaperCounter boot OK\r\n");
 
