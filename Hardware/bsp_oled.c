@@ -42,29 +42,30 @@ static void OLED_GetFont(char character, const uint8_t **font)
         {0x3CU, 0x4AU, 0x49U, 0x49U, 0x30U}, {0x01U, 0x71U, 0x09U, 0x05U, 0x03U},
         {0x36U, 0x49U, 0x49U, 0x49U, 0x36U}, {0x06U, 0x49U, 0x49U, 0x29U, 0x1EU}
     };
-    static const uint8_t oled_text[][5] = {
-        {0x3EU, 0x41U, 0x41U, 0x41U, 0x3EU}, {0x7FU, 0x40U, 0x40U, 0x40U, 0x40U},
-        {0x7FU, 0x49U, 0x49U, 0x49U, 0x41U}, {0x7FU, 0x41U, 0x41U, 0x22U, 0x1CU},
-        {0x7FU, 0x08U, 0x14U, 0x22U, 0x41U}
-    };
-    static const char letters[] = "OLEDK";
-    uint8_t index;
-
     *font = blank;
     if ((character >= '0') && (character <= '9'))
     {
         *font = digit[(uint8_t)(character - '0')];
     }
-    else
-    {
-        for (index = 0U; index < 5U; index++)
-        {
-            if (character == letters[index])
-            {
-                *font = oled_text[index];
-            }
-        }
-    }
+    else if (character == 'A') { static const uint8_t data[5] = {0x7EU,0x11U,0x11U,0x11U,0x7EU}; *font = data; }
+    else if (character == 'C') { static const uint8_t data[5] = {0x3EU,0x41U,0x41U,0x41U,0x22U}; *font = data; }
+    else if (character == 'D') { static const uint8_t data[5] = {0x7FU,0x41U,0x41U,0x22U,0x1CU}; *font = data; }
+    else if (character == 'E') { static const uint8_t data[5] = {0x7FU,0x49U,0x49U,0x49U,0x41U}; *font = data; }
+    else if (character == 'F') { static const uint8_t data[5] = {0x7FU,0x09U,0x09U,0x09U,0x01U}; *font = data; }
+    else if (character == 'I') { static const uint8_t data[5] = {0x00U,0x41U,0x7FU,0x41U,0x00U}; *font = data; }
+    else if (character == 'K') { static const uint8_t data[5] = {0x7FU,0x08U,0x14U,0x22U,0x41U}; *font = data; }
+    else if (character == 'L') { static const uint8_t data[5] = {0x7FU,0x40U,0x40U,0x40U,0x40U}; *font = data; }
+    else if (character == 'M') { static const uint8_t data[5] = {0x7FU,0x02U,0x0CU,0x02U,0x7FU}; *font = data; }
+    else if (character == 'N') { static const uint8_t data[5] = {0x7FU,0x04U,0x08U,0x10U,0x7FU}; *font = data; }
+    else if (character == 'O') { static const uint8_t data[5] = {0x3EU,0x41U,0x41U,0x41U,0x3EU}; *font = data; }
+    else if (character == 'Q') { static const uint8_t data[5] = {0x3EU,0x41U,0x51U,0x21U,0x5EU}; *font = data; }
+    else if (character == 'R') { static const uint8_t data[5] = {0x7FU,0x09U,0x19U,0x29U,0x46U}; *font = data; }
+    else if (character == 'S') { static const uint8_t data[5] = {0x46U,0x49U,0x49U,0x49U,0x31U}; *font = data; }
+    else if (character == 'T') { static const uint8_t data[5] = {0x01U,0x01U,0x7FU,0x01U,0x01U}; *font = data; }
+    else if (character == 'U') { static const uint8_t data[5] = {0x3FU,0x40U,0x40U,0x40U,0x3FU}; *font = data; }
+    else if (character == 'V') { static const uint8_t data[5] = {0x1FU,0x20U,0x40U,0x20U,0x1FU}; *font = data; }
+    else if (character == 'Y') { static const uint8_t data[5] = {0x07U,0x08U,0x70U,0x08U,0x07U}; *font = data; }
+    else if (character == ':') { static const uint8_t data[5] = {0x00U,0x36U,0x36U,0x00U,0x00U}; *font = data; }
 }
 
 uint8_t OLED_Init(void)

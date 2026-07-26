@@ -33,12 +33,14 @@ typedef struct
 void Ui_Init(void);
 
 /* 处理已转换的按键事件。 */
-void Ui_HandleKey(UiKeyEvent key_event);
+uint8_t Ui_HandleKey(UiKeyEvent key_event);
 
 /* 更新监测页显示所需的测量数据。 */
 void Ui_UpdateMeasurement(uint32_t frequency_hz, uint16_t paper_count, PaperCounterStatus counter_status);
 
 /* 获取当前页面与显示状态，供 OLED 或串口显示模块读取。 */
 const UiState *Ui_GetState(void);
+const char *Ui_GetTitle(void);
+const char *Ui_GetDetail(void);
 
 #endif

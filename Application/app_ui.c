@@ -11,35 +11,52 @@ void Ui_Init(void)
     ui_state.calibration_dirty = 0U;
 }
 
-void Ui_HandleKey(UiKeyEvent key_event)
+uint8_t Ui_HandleKey(UiKeyEvent key_event)
 {
-    if (key_event == UI_KEY_1)
+    if (ui_state.page == UI_PAGE_MONITOR)
     {
-        ui_state.page = UI_PAGE_MONITOR;
+        if (key_event == UI_KEY_2)
+        {
+            ui_state.page = UI_PAGE_CALIBRATION;
+            ui_state.calibration_dirty = 0U;
+            return 1U;
+        }
     }
-    else if (key_event == UI_KEY_2)
+    else if (ui_state.page == UI_PAGE_CALIBRATION)
     {
-        ui_state.page = UI_PAGE_CALIBRATION;
-    }
-    else if (key_event == UI_KEY_3)
-    {
-        if (ui_state.page == UI_PAGE_CALIBRATION)
+        if (key_event == UI_KEY_1)
+        {
+            ui_state.page = UI_PAGE_MONITOR;
+            ui_state.calibration_dirty = 0U;
+            return 1U;
+        }
+        if (key_event == UI_KEY_3)
         {
             ui_state.calibration_dirty = 1U;
+            return 1U;
         }
-    }
-    else if (key_event == UI_KEY_4)
-    {
-        if (ui_state.page == UI_PAGE_CALIBRATION)
+        if (key_event == UI_KEY_4)
         {
             ui_state.page = UI_PAGE_SAVE_CONFIRM;
+            return 1U;
         }
-        else if (ui_state.page == UI_PAGE_SAVE_CONFIRM)
+    }
+    else if (ui_state.page == UI_PAGE_SAVE_CONFIRM)
+    {
+        if ((key_event == UI_KEY_1) || (key_event == UI_KEY_2))
+        {
+            ui_state.page = UI_PAGE_CALIBRATION;
+            return 1U;
+        }
+        if (key_event == UI_KEY_4)
         {
             ui_state.calibration_dirty = 0U;
             ui_state.page = UI_PAGE_MONITOR;
+            return 1U;
         }
     }
+
+    return 0U;
 }
 
 void Ui_UpdateMeasurement(uint32_t frequency_hz, uint16_t paper_count, PaperCounterStatus counter_status)
@@ -52,4 +69,34 @@ void Ui_UpdateMeasurement(uint32_t frequency_hz, uint16_t paper_count, PaperCoun
 const UiState *Ui_GetState(void)
 {
     return &ui_state;
+}
+
+const char *Ui_GetTitle(void)
+{
+    if (ui_state.page == UI_PAGE_CALIBRATION)
+    {
+        return "CAL MODE";
+    }
+
+    if (ui_state.page == UI_PAGE_SAVE_CONFIRM)
+    {
+        return "SAVE CAL?";
+    }
+
+    return "FREQ:";
+}
+
+const char *Ui_GetDetail(void)
+{
+    if (ui_state.page == UI_PAGE_CALIBRATION)
+    {
+        return (ui_state.calibration_dirty != 0U) ? "DIRTY" : "EDIT";
+    }
+
+    if (ui_state.page == UI_PAGE_SAVE_CONFIRM)
+    {
+        return "K4: YES";
+    }
+
+    return "COUNT:";
 }
