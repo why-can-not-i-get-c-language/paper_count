@@ -38,3 +38,10 @@
 - 决定：使用 `__asm(".global __use_no_semihosting")` 禁用 Arm Compiler 6 的半主机输出，并通过 `fputc` 将 `printf` 重定向到 USART1。
 - 原因：未禁用半主机时，`printf` 会阻塞主程序，导致 LED 不再闪烁。
 - 影响：后续调试输出可直接使用 `printf`，不依赖 ST-LINK 的半主机控制台。
+
+## D007：按键采用内部上拉接法
+
+- 状态：已确认。
+- 决定：K1-K4 使用 PB12-PB15 的内部上拉输入，按键另一端统一接 GND。
+- 原因：不需要额外上拉电阻，接线简单，且避开 USART、ST-LINK 和 PC13 板载 LED 引脚。
+- 影响：读取到低电平表示按键按下。

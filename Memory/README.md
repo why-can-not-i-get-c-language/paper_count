@@ -7,6 +7,9 @@
 - `architecture.md`：系统分层、模块责任和模块依赖。
 - `decisions.md`：已经确认的技术选择及其原因。
 - `progress.md`：当前工作状态、下一步和待确认事项。
+- `roadmap.md`：按依赖关系排列的项目实施顺序、阶段目标和完成条件。
+- `hardware_debug_standard.md`：硬件接线、万用表检查和软件验证的统一说明标准。
+- `handoff_prompt.md`：用于新对话或新代理的项目交接 Prompt。
 
 ## 更新规则
 

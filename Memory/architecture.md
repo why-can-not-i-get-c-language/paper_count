@@ -29,7 +29,7 @@
 | 延时 | `System/delay.c/.h` | SysTick 毫秒计时与阻塞延时 | 已验证 |
 | 板载 LED | `Hardware/bsp_led.c/.h` | PC13 LED 初始化和控制 | 已验证 |
 | 串口 | `Hardware/bsp_usart.c/.h` | USART1 调试信息输出 | 已验证 |
-| 按键 | `Hardware/bsp_key.c/.h` | 按键读取与消抖 | 未实现 |
+| 按键 | `Hardware/bsp_key.c/.h` | PB12-PB15 按键读取与消抖 | 已验证 |
 | 软件 I2C | `Hardware/bsp_soft_i2c.c/.h` | OLED 与 EEPROM 的 I2C 时序 | 未实现 |
 | OLED | `Hardware/bsp_oled.c/.h` | 显示文字、数值和状态 | 未实现 |
 | EEPROM | `Hardware/bsp_at24c08.c/.h` | 保存和读取标定数据 | 未实现 |
@@ -44,6 +44,7 @@
 - PC13 是核心板板载 LED，通常为低电平点亮。
 - PA13、PA14 保留给 ST-LINK 调试。
 - NE555 输出进入 STM32 前必须从 5 V 降至 3.3 V。
+- K1-K4 分别连接 PB12、PB13、PB14、PB15，按下时接地。
 
 ## 待确认硬件信息
 
