@@ -44,4 +44,5 @@
 - Stage only files directly related to the current task.
 - Update the relevant `Memory/` records before creating a commit.
 - Create a clear local commit after the task is accepted.
-- Do not push to a remote unless the user explicitly requests it.
+- After the user accepts a verifiable small task, push its local commit to the configured GitHub remote.
+- Never stage, overwrite, or commit user-local configuration files unless the user explicitly identifies them as part of the task.

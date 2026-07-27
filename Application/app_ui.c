@@ -10,6 +10,8 @@ void Ui_Init(void)
     ui_state.counter_status = PAPER_COUNTER_STATUS_WAITING_FOR_STABLE;
     ui_state.calibration_dirty = 0U;
     ui_state.save_failed = 0U;
+    ui_state.calibration_paper_count = 0U;
+    ui_state.calibration_frequency_hz = 0U;
 }
 
 UiAction Ui_HandleKey(UiKeyEvent key_event)
@@ -21,6 +23,7 @@ UiAction Ui_HandleKey(UiKeyEvent key_event)
             ui_state.page = UI_PAGE_CALIBRATION;
             ui_state.calibration_dirty = 0U;
             ui_state.save_failed = 0U;
+            ui_state.calibration_paper_count = 0U;
             return UI_ACTION_RENDER;
         }
     }
@@ -31,12 +34,20 @@ UiAction Ui_HandleKey(UiKeyEvent key_event)
             ui_state.page = UI_PAGE_MONITOR;
             ui_state.calibration_dirty = 0U;
             ui_state.save_failed = 0U;
+            return UI_ACTION_CANCEL_EDIT;
+        }
+        if (key_event == UI_KEY_2)
+        {
+            ui_state.calibration_paper_count++;
+            if (ui_state.calibration_paper_count > 80U)
+            {
+                ui_state.calibration_paper_count = 0U;
+            }
             return UI_ACTION_RENDER;
         }
         if (key_event == UI_KEY_3)
         {
-            ui_state.calibration_dirty = 1U;
-            return UI_ACTION_RENDER;
+            return UI_ACTION_CAPTURE_REQUEST;
         }
         if (key_event == UI_KEY_4)
         {
@@ -81,6 +92,19 @@ uint8_t Ui_CompleteSave(uint8_t success)
     return 1U;
 }
 
+void Ui_UpdateCalibrationFrequency(uint32_t frequency_hz)
+{
+    ui_state.calibration_frequency_hz = frequency_hz;
+}
+
+void Ui_CompleteCapture(uint8_t success)
+{
+    if (success != 0U)
+    {
+        ui_state.calibration_dirty = 1U;
+    }
+}
+
 void Ui_UpdateMeasurement(uint32_t frequency_hz, uint16_t paper_count, PaperCounterStatus counter_status)
 {
     ui_state.frequency_hz = frequency_hz;
@@ -97,7 +121,7 @@ const char *Ui_GetTitle(void)
 {
     if (ui_state.page == UI_PAGE_CALIBRATION)
     {
-        return "CAL MODE";
+        return "CAL:";
     }
 
     if (ui_state.page == UI_PAGE_SAVE_CONFIRM)
@@ -112,7 +136,7 @@ const char *Ui_GetDetail(void)
 {
     if (ui_state.page == UI_PAGE_CALIBRATION)
     {
-        return (ui_state.calibration_dirty != 0U) ? "DIRTY" : "EDIT";
+        return "FREQ:";
     }
 
     if (ui_state.page == UI_PAGE_SAVE_CONFIRM)

@@ -52,10 +52,77 @@ static uint32_t Calibration_LoadU32(const uint8_t *data)
 
 static CalibrationPoint calibration_table[CALIBRATION_MAX_POINTS];
 static uint8_t calibration_point_count;
+static CalibrationPoint calibration_edit_table[CALIBRATION_MAX_POINTS];
+static uint8_t calibration_edit_point_count;
+
+static CalibrationStatus Calibration_ValidateAndSort(CalibrationPoint *points, uint8_t count)
+{
+    CalibrationPoint temporary;
+    uint8_t index;
+    uint8_t sorted_index;
+
+    if ((points == 0) || (count == 0U) || (count > CALIBRATION_MAX_POINTS))
+    {
+        return CALIBRATION_STATUS_INVALID_PARAMETER;
+    }
+
+    for (index = 1U; index < count; index++)
+    {
+        temporary = points[index];
+        sorted_index = index;
+        while ((sorted_index > 0U) && (temporary.frequency_hz < points[sorted_index - 1U].frequency_hz))
+        {
+            points[sorted_index] = points[sorted_index - 1U];
+            sorted_index--;
+        }
+        points[sorted_index] = temporary;
+    }
+
+    for (index = 1U; index < count; index++)
+    {
+        if (points[index].frequency_hz <= points[index - 1U].frequency_hz)
+        {
+            return CALIBRATION_STATUS_NOT_SORTED;
+        }
+    }
+
+    return CALIBRATION_STATUS_OK;
+}
+
+static CalibrationStorageStatus Calibration_SaveTable(const CalibrationPoint *points, uint8_t count)
+{
+    uint8_t storage[CALIBRATION_STORAGE_SIZE] = {0U};
+    uint8_t index;
+    uint16_t crc;
+
+    if ((points == 0) || (count == 0U) || (count > CALIBRATION_MAX_POINTS))
+    {
+        return CALIBRATION_STORAGE_STATUS_EMPTY;
+    }
+
+    storage[0] = 'P';
+    storage[1] = 'C';
+    storage[2] = 'A';
+    storage[3] = 'L';
+    storage[4] = CALIBRATION_STORAGE_VERSION;
+    storage[5] = count;
+    for (index = 0U; index < count; index++)
+    {
+        Calibration_StoreU32(&storage[6U + (uint16_t)index * 6U], points[index].frequency_hz);
+        Calibration_StoreU16(&storage[10U + (uint16_t)index * 6U], points[index].paper_count);
+    }
+
+    crc = Calibration_CalculateCrc16(storage, CALIBRATION_STORAGE_CRC_POS);
+    Calibration_StoreU16(&storage[CALIBRATION_STORAGE_CRC_POS], crc);
+
+    return AT24C08_Write(CALIBRATION_STORAGE_ADDRESS, storage, CALIBRATION_STORAGE_SIZE) != 0U ?
+           CALIBRATION_STORAGE_STATUS_OK : CALIBRATION_STORAGE_STATUS_EEPROM_ERROR;
+}
 
 void Calibration_Clear(void)
 {
     calibration_point_count = 0U;
+    calibration_edit_point_count = 0U;
 }
 
 CalibrationStatus Calibration_SetTable(const CalibrationPoint *points, uint8_t count)
@@ -150,35 +217,11 @@ CalibrationStatus Calibration_ConvertFrequency(uint32_t frequency_hz, uint16_t *
 
 CalibrationStorageStatus Calibration_Save(void)
 {
-    uint8_t storage[CALIBRATION_STORAGE_SIZE] = {0U};
     uint8_t count;
-    uint8_t index;
-    uint16_t crc;
     const CalibrationPoint *points;
 
     points = Calibration_GetTable(&count);
-    if (count == 0U)
-    {
-        return CALIBRATION_STORAGE_STATUS_EMPTY;
-    }
-
-    storage[0] = 'P';
-    storage[1] = 'C';
-    storage[2] = 'A';
-    storage[3] = 'L';
-    storage[4] = CALIBRATION_STORAGE_VERSION;
-    storage[5] = count;
-    for (index = 0U; index < count; index++)
-    {
-        Calibration_StoreU32(&storage[6U + (uint16_t)index * 6U], points[index].frequency_hz);
-        Calibration_StoreU16(&storage[10U + (uint16_t)index * 6U], points[index].paper_count);
-    }
-
-    crc = Calibration_CalculateCrc16(storage, CALIBRATION_STORAGE_CRC_POS);
-    Calibration_StoreU16(&storage[CALIBRATION_STORAGE_CRC_POS], crc);
-
-    return AT24C08_Write(CALIBRATION_STORAGE_ADDRESS, storage, CALIBRATION_STORAGE_SIZE) != 0U ?
-           CALIBRATION_STORAGE_STATUS_OK : CALIBRATION_STORAGE_STATUS_EEPROM_ERROR;
+    return Calibration_SaveTable(points, count);
 }
 
 CalibrationStorageStatus Calibration_Load(void)
@@ -218,5 +261,100 @@ CalibrationStorageStatus Calibration_Load(void)
     }
 
     status = Calibration_SetTable(points, count);
+    return status == CALIBRATION_STATUS_OK ? CALIBRATION_STORAGE_STATUS_OK : CALIBRATION_STORAGE_STATUS_TABLE_ERROR;
+}
+
+void Calibration_BeginEdit(void)
+{
+    uint8_t index;
+
+    for (index = 0U; index < calibration_point_count; index++)
+    {
+        calibration_edit_table[index] = calibration_table[index];
+    }
+    calibration_edit_point_count = calibration_point_count;
+}
+
+void Calibration_DiscardEdit(void)
+{
+    Calibration_BeginEdit();
+}
+
+CalibrationStatus Calibration_SetEditPoint(uint16_t paper_count, uint32_t frequency_hz)
+{
+    CalibrationPoint temporary_table[CALIBRATION_MAX_POINTS];
+    CalibrationStatus status;
+    uint8_t index;
+    uint8_t temporary_count;
+    uint8_t replaced;
+
+    if (frequency_hz == 0U)
+    {
+        return CALIBRATION_STATUS_INVALID_PARAMETER;
+    }
+
+    for (index = 0U; index < calibration_edit_point_count; index++)
+    {
+        temporary_table[index] = calibration_edit_table[index];
+    }
+    temporary_count = calibration_edit_point_count;
+    replaced = 0U;
+
+    for (index = 0U; index < temporary_count; index++)
+    {
+        if (temporary_table[index].paper_count == paper_count)
+        {
+            temporary_table[index].frequency_hz = frequency_hz;
+            replaced = 1U;
+            break;
+        }
+    }
+    if (replaced == 0U)
+    {
+        if (temporary_count >= CALIBRATION_MAX_POINTS)
+        {
+            return CALIBRATION_STATUS_INVALID_PARAMETER;
+        }
+        temporary_table[temporary_count].paper_count = paper_count;
+        temporary_table[temporary_count].frequency_hz = frequency_hz;
+        temporary_count++;
+    }
+
+    status = Calibration_ValidateAndSort(temporary_table, temporary_count);
+    if (status != CALIBRATION_STATUS_OK)
+    {
+        return status;
+    }
+
+    for (index = 0U; index < temporary_count; index++)
+    {
+        calibration_edit_table[index] = temporary_table[index];
+    }
+    calibration_edit_point_count = temporary_count;
+    return CALIBRATION_STATUS_OK;
+}
+
+const CalibrationPoint *Calibration_GetEditTable(uint8_t *count)
+{
+    if (count != 0)
+    {
+        *count = calibration_edit_point_count;
+    }
+
+    return calibration_edit_table;
+}
+
+CalibrationStorageStatus Calibration_SaveEdit(void)
+{
+    CalibrationStorageStatus storage_status;
+    CalibrationStatus status;
+
+    storage_status = Calibration_SaveTable(calibration_edit_table, calibration_edit_point_count);
+    if (storage_status != CALIBRATION_STORAGE_STATUS_OK)
+    {
+        return storage_status;
+    }
+
+    status = Calibration_SetTable(calibration_edit_table, calibration_edit_point_count);
     return status == CALIBRATION_STATUS_OK ? CALIBRATION_STORAGE_STATUS_OK : CALIBRATION_STORAGE_STATUS_TABLE_ERROR;
 }

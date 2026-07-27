@@ -32,6 +32,11 @@ static void Main_RenderUi(void)
         OLED_ShowNumber(42U, 0U, state->frequency_hz);
         OLED_ShowNumber(42U, 2U, state->paper_count);
     }
+    else if (state->page == UI_PAGE_CALIBRATION)
+    {
+        OLED_ShowNumber(42U, 0U, state->calibration_paper_count);
+        OLED_ShowNumber(42U, 2U, state->calibration_frequency_hz);
+    }
 }
 
 int main(void)
@@ -41,8 +46,10 @@ int main(void)
     uint8_t oled_ok;
     CalibrationStorageStatus calibration_storage_status;
     UiAction ui_action;
+    CalibrationStatus calibration_status;
     uint32_t frequency_hz;
     KeyCode key;
+    UiPage previous_page;
 
     Delay_Init();
     LED_Init();
@@ -78,16 +85,34 @@ int main(void)
         if (key != KEY_NONE)
         {
             printf("KEY %d pressed\r\n", (int)key);
+            previous_page = Ui_GetState()->page;
             ui_action = Ui_HandleKey(Main_ConvertKeyEvent(key));
-            if (ui_action == UI_ACTION_SAVE_REQUEST)
+            if (ui_action == UI_ACTION_CANCEL_EDIT)
             {
-                calibration_storage_status = Calibration_Save();
+                Calibration_DiscardEdit();
+                Main_RenderUi();
+            }
+            else if (ui_action == UI_ACTION_CAPTURE_REQUEST)
+            {
+                calibration_status = Calibration_SetEditPoint(Ui_GetState()->calibration_paper_count,
+                                                              Ui_GetState()->calibration_frequency_hz);
+                printf("Calibration capture status: %d\r\n", (int)calibration_status);
+                Ui_CompleteCapture(calibration_status == CALIBRATION_STATUS_OK);
+                Main_RenderUi();
+            }
+            else if (ui_action == UI_ACTION_SAVE_REQUEST)
+            {
+                calibration_storage_status = Calibration_SaveEdit();
                 printf("Calibration save status: %d\r\n", (int)calibration_storage_status);
                 Ui_CompleteSave(calibration_storage_status == CALIBRATION_STORAGE_STATUS_OK);
                 Main_RenderUi();
             }
             else if (ui_action == UI_ACTION_RENDER)
             {
+                if ((previous_page == UI_PAGE_MONITOR) && (Ui_GetState()->page == UI_PAGE_CALIBRATION))
+                {
+                    Calibration_BeginEdit();
+                }
                 Main_RenderUi();
             }
             else
@@ -113,6 +138,7 @@ int main(void)
             if (Freq_GetHz(&frequency_hz) != 0U)
             {
                 printf("Frequency: %u Hz\r\n", (unsigned int)frequency_hz);
+                Ui_UpdateCalibrationFrequency(frequency_hz);
                 if (Ui_GetState()->page == UI_PAGE_MONITOR)
                 {
                     Ui_UpdateMeasurement(frequency_hz, 0U, PAPER_COUNTER_STATUS_WAITING_FOR_STABLE);

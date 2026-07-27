@@ -49,4 +49,19 @@ CalibrationStorageStatus Calibration_Save(void);
 /* 从 AT24C08 加载并校验标定表。 */
 CalibrationStorageStatus Calibration_Load(void);
 
+/* 基于当前正式标定表开始一次可取消的编辑会话。 */
+void Calibration_BeginEdit(void);
+
+/* 放弃未保存编辑，恢复为当前正式标定表。 */
+void Calibration_DiscardEdit(void);
+
+/* 为指定纸张张数新增或更新一个编辑标定点，并按频率升序整理。 */
+CalibrationStatus Calibration_SetEditPoint(uint16_t paper_count, uint32_t frequency_hz);
+
+/* 获取正在编辑的标定表。 */
+const CalibrationPoint *Calibration_GetEditTable(uint8_t *count);
+
+/* 保存编辑标定表；成功后将其作为当前正式标定表。 */
+CalibrationStorageStatus Calibration_SaveEdit(void);
+
 #endif

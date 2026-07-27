@@ -24,6 +24,8 @@ typedef enum
 {
     UI_ACTION_NONE = 0,
     UI_ACTION_RENDER,
+    UI_ACTION_CANCEL_EDIT,
+    UI_ACTION_CAPTURE_REQUEST,
     UI_ACTION_SAVE_REQUEST
 } UiAction;
 
@@ -35,6 +37,8 @@ typedef struct
     PaperCounterStatus counter_status;
     uint8_t calibration_dirty;
     uint8_t save_failed;
+    uint16_t calibration_paper_count;
+    uint32_t calibration_frequency_hz;
 } UiState;
 
 /* 初始化页面状态。 */
@@ -45,6 +49,12 @@ UiAction Ui_HandleKey(UiKeyEvent key_event);
 
 /* 根据 EEPROM 保存结果完成或保留保存确认页。 */
 uint8_t Ui_CompleteSave(uint8_t success);
+
+/* 更新当前可用于标定捕获的频率。 */
+void Ui_UpdateCalibrationFrequency(uint32_t frequency_hz);
+
+/* 根据标定点捕获结果更新页面状态。 */
+void Ui_CompleteCapture(uint8_t success);
 
 /* 更新监测页显示所需的测量数据。 */
 void Ui_UpdateMeasurement(uint32_t frequency_hz, uint16_t paper_count, PaperCounterStatus counter_status);
