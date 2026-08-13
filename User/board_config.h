@@ -26,4 +26,8 @@
 #define FREQ_SELFTEST_GPIO_PORT GPIOB
 #define FREQ_SELFTEST_PIN       GPIO_Pin_0
 
+/* TIM3_CH4 使用 PB1 输出约 2048Hz 蜂鸣器方波。 */
+#define BUZZER_GPIO_PORT        GPIOB
+#define BUZZER_GPIO_PIN         GPIO_Pin_1
+
 #endif

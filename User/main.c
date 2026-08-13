@@ -6,7 +6,9 @@
 #include "bsp_oled.h"
 #include "bsp_freq.h"
 #include "bsp_at24c08.h"
+#include "bsp_buzzer.h"
 #include "app_calibration.h"
+#include "app_paper_counter.h"
 #include "app_ui.h"
 #include <stdio.h>
 
@@ -39,6 +41,26 @@ static void Main_RenderUi(void)
     }
 }
 
+static void Main_HandleCounterResult(PaperCounterStatus status, uint16_t paper_count,
+                                     PaperCounterStatus *previous_status, uint16_t *previous_count)
+{
+    if ((status == PAPER_COUNTER_STATUS_OK) &&
+        ((*previous_status != PAPER_COUNTER_STATUS_OK) || (*previous_count != paper_count)))
+    {
+        Buzzer_Beep(120U);
+    }
+    else if (((status == PAPER_COUNTER_STATUS_FREQUENCY_LOW) ||
+              (status == PAPER_COUNTER_STATUS_FREQUENCY_HIGH)) &&
+             (*previous_status != status))
+    {
+        /* 越界使用一次较长提示音，避免阻塞主循环。 */
+        Buzzer_Beep(240U);
+    }
+
+    *previous_status = status;
+    *previous_count = paper_count;
+}
+
 int main(void)
 {
     uint8_t led_tick = 0U;
@@ -47,7 +69,12 @@ int main(void)
     CalibrationStorageStatus calibration_storage_status;
     UiAction ui_action;
     CalibrationStatus calibration_status;
+    PaperCounterConfig paper_counter_config;
+    PaperCounterStatus counter_status;
+    PaperCounterStatus previous_counter_status;
     uint32_t frequency_hz;
+    uint16_t paper_count = 0U;
+    uint16_t previous_paper_count;
     KeyCode key;
     UiPage previous_page;
 
@@ -58,6 +85,13 @@ int main(void)
     /* 等待 USB 转串口模块与上位机在复位后稳定，避免首批调试字符丢失。 */
     Delay_ms(1000U);
     Freq_Init();
+    Buzzer_Init();
+    Buzzer_Beep(150U);
+    paper_counter_config.frequency_tolerance_hz = 300U;
+    paper_counter_config.required_stable_samples = 3U;
+    PaperCounter_Init(&paper_counter_config);
+    previous_counter_status = PAPER_COUNTER_STATUS_WAITING_FOR_STABLE;
+    previous_paper_count = 0U;
     Ui_Init();
     AT24C08_Init();
 
@@ -98,6 +132,10 @@ int main(void)
                                                               Ui_GetState()->calibration_frequency_hz);
                 printf("Calibration capture status: %d\r\n", (int)calibration_status);
                 Ui_CompleteCapture(calibration_status == CALIBRATION_STATUS_OK);
+                if (calibration_status == CALIBRATION_STATUS_OK)
+                {
+                    Buzzer_Beep(100U);
+                }
                 Main_RenderUi();
             }
             else if (ui_action == UI_ACTION_SAVE_REQUEST)
@@ -105,6 +143,15 @@ int main(void)
                 calibration_storage_status = Calibration_SaveEdit();
                 printf("Calibration save status: %d\r\n", (int)calibration_storage_status);
                 Ui_CompleteSave(calibration_storage_status == CALIBRATION_STORAGE_STATUS_OK);
+                if (calibration_storage_status == CALIBRATION_STORAGE_STATUS_OK)
+                {
+                    Buzzer_Beep(200U);
+                }
+                else
+                {
+                    /* 保存失败使用一次较长提示音，避免阻塞主循环。 */
+                    Buzzer_Beep(240U);
+                }
                 Main_RenderUi();
             }
             else if (ui_action == UI_ACTION_RENDER)
@@ -122,6 +169,7 @@ int main(void)
         }
 
         Delay_ms(10U);
+        Buzzer_Task(10U);
 
         led_tick++;
         if (led_tick >= 50U)
@@ -141,7 +189,10 @@ int main(void)
                 Ui_UpdateCalibrationFrequency(frequency_hz);
                 if (Ui_GetState()->page == UI_PAGE_MONITOR)
                 {
-                    Ui_UpdateMeasurement(frequency_hz, 0U, PAPER_COUNTER_STATUS_WAITING_FOR_STABLE);
+                    counter_status = PaperCounter_ProcessFrequency(frequency_hz, &paper_count);
+                    Ui_UpdateMeasurement(frequency_hz, paper_count, counter_status);
+                    Main_HandleCounterResult(counter_status, paper_count,
+                                             &previous_counter_status, &previous_paper_count);
                     Main_RenderUi();
                 }
             }
